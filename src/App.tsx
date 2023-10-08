@@ -1,13 +1,15 @@
-import { Show, createEffect, createSignal } from "solid-js";
+import { Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
 import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/api/notification";
+import { UnlistenFn, listen } from "@tauri-apps/api/event";
 
 function App() {
 
   const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
   const [numFiles, setNumFiles] = createSignal<number | undefined>()
   const [filePath, setFilePath] = createSignal<string | undefined>();
+  let dropzoneRef: HTMLDivElement | undefined;
 
   const handleFileInput = async () => {
     const selected = await open({
@@ -53,11 +55,21 @@ function App() {
     localStorage.setItem("num-lines", numLines().toString());
   })
 
+  let unlisten: UnlistenFn = () => { };
+  onMount(async () => {
+    console.log('listen to file drop')
+    unlisten = await listen("tauri://file-drop", async (event) => {
+      const payload = event.payload as string[];
+      console.log(payload)
+    })
+  })
+
+  onCleanup(() => {
+    unlisten()
+  })
+
   return (
-    <div class="flex flex-col w-full">
-      <button class="btn" onClick={handleFileInput}>打开文件</button>
-      <p>{filePath() || ""}</p>
-      
+    <div class="flex flex-col w-full p-9">
       <div class="form-control w-full max-w-xs">
         <label class="label">
           <span class="label-text">每个文件包含记录条数</span>
@@ -70,15 +82,18 @@ function App() {
         />
       </div>
 
-      <button
-        class="btn"
-        classList={{
-          "btn-disabled": filePath() === undefined
-        }}
-        onClick={handleSplit}
+      <div
+        class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-md"
+        ref={dropzoneRef}
       >
-        拆分
-      </button>
+        <label class="cursor-pointer flex flex-col items-center space-y-2">
+          <svg class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          <span class="text-gray-600">拖拽文件到这里</span>
+          <span class="text-gray-500">（或点击此处选择文件）</span>
+        </label>
+      </div>
       <p>{numFiles() === undefined || `已拆分 ${numFiles()} 个文件`}</p>
     </div>
   );

@@ -5,10 +5,9 @@ import { isPermissionGranted, requestPermission, sendNotification } from "@tauri
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 
 function App() {
-
   const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
   const [numFiles, setNumFiles] = createSignal<number | undefined>()
-  const [filePath, setFilePath] = createSignal<string | undefined>();
+  const [filePath, setFilePath] = createSignal<string>("");
   const [permissionGranted] = createResource(async () => {
     let permissionGranted = await isPermissionGranted();
     if (!permissionGranted) {
@@ -60,10 +59,8 @@ function App() {
   })
 
   createEffect(() => {
-    if (filePath() === undefined) {
-      return;
-    }
-    if (filePath()!.endsWith(".csv")) {
+    if (filePath().length === 0) { return; }
+    if (filePath().endsWith(".csv")) {
       handleSplit().catch(console.log)
     } else {
       console.log('not csv');
@@ -106,14 +103,14 @@ function App() {
   })
 
   return (
-    <div class="flex flex-col w-full p-9 space-y-2">
-      <div class="w-full max-w-xs">
-        <label class="label">
-          <span class="label-text">每个文件包含记录条数</span>
+    <div class="flex flex-col w-full p-9 space-y-8">
+      <div class="w-full">
+        <label class="block mb-2 font-medium text-gray-900">
+          每个文件包含记录条数
         </label>
         <input
           type="number"
-          class="w-full max-w-xs"
+          class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
           value={numLines()}
           onChange={(e) => setNumLines(parseInt(e.target.value))}
         />

@@ -1,4 +1,4 @@
-import { Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { Show, createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
 import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/api/notification";
@@ -9,6 +9,14 @@ function App() {
   const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
   const [numFiles, setNumFiles] = createSignal<number | undefined>()
   const [filePath, setFilePath] = createSignal<string | undefined>();
+  const [permissionGranted] = createResource(async () => {
+    let permissionGranted = await isPermissionGranted();
+    if (!permissionGranted) {
+      const permission = await requestPermission();
+      permissionGranted = permission === 'granted';
+    }
+    return permissionGranted;
+  });
   let dropzoneRef: HTMLDivElement | undefined;
 
   const handleFileInput = async () => {
@@ -37,12 +45,8 @@ function App() {
     })
     setNumFiles(numFiles);
 
-    let permisionGranted = await isPermissionGranted();
-    if (!permisionGranted) {
-      const permission = await requestPermission();
-      permisionGranted = permission === 'granted';
-    }
-    if (permisionGranted) {
+
+    if (permissionGranted()) {
       sendNotification({
         title: "csv splitter",
         body: `已拆分 ${numFiles} 个文件`
@@ -55,28 +59,61 @@ function App() {
     localStorage.setItem("num-lines", numLines().toString());
   })
 
-  let unlisten: UnlistenFn = () => { };
+  createEffect(() => {
+    if (filePath() === undefined) {
+      return;
+    }
+    if (filePath()!.endsWith(".csv")) {
+      handleSplit().catch(console.log)
+    } else {
+      console.log('not csv');
+      sendNotification({
+        title: "csv splitter",
+        body: `文件 ${filePath()} 不是csv文件`
+      })
+    }
+  })
+
+  const unlistens: UnlistenFn[] = [];
   onMount(async () => {
     console.log('listen to file drop')
-    unlisten = await listen("tauri://file-drop", async (event) => {
-      const payload = event.payload as string[];
-      console.log(payload)
-    })
+    unlistens.push(
+      await listen("tauri://file-drop", async (event) => {
+        const payload = event.payload as string[];
+        console.log(payload)
+        dropzoneRef?.classList.remove('border-blue-500', 'border-2');
+        setFilePath(payload[0]);
+      })
+    )
+    unlistens.push(
+      await listen("tauri://file-drop-hover", (event) => {
+        console.log('file-drop-hover')
+        dropzoneRef?.classList.add('border-blue-500', 'border-2');
+      })
+    );
+    unlistens.push(
+      await listen("tauri://file-drop-cancelled", (event) => {
+        console.log('file-drop-cancelled')
+        dropzoneRef?.classList.remove('border-blue-500', 'border-2');
+      })
+    )
   })
 
   onCleanup(() => {
-    unlisten()
+    unlistens.map((unlisten) => {
+      unlisten();
+    })
   })
 
   return (
-    <div class="flex flex-col w-full p-9">
-      <div class="form-control w-full max-w-xs">
+    <div class="flex flex-col w-full p-9 space-y-2">
+      <div class="w-full max-w-xs">
         <label class="label">
           <span class="label-text">每个文件包含记录条数</span>
         </label>
         <input
           type="number"
-          class="input input-bordered w-full max-w-xs"
+          class="w-full max-w-xs"
           value={numLines()}
           onChange={(e) => setNumLines(parseInt(e.target.value))}
         />
@@ -85,6 +122,7 @@ function App() {
       <div
         class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-md"
         ref={dropzoneRef}
+        onClick={handleFileInput}
       >
         <label class="cursor-pointer flex flex-col items-center space-y-2">
           <svg class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

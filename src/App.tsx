@@ -8,6 +8,7 @@ function App() {
   const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
   const [numFiles, setNumFiles] = createSignal<number | undefined>()
   const [filePath, setFilePath] = createSignal<string>("");
+  const [isHover, setIsNover] = createSignal(false);
   const [permissionGranted] = createResource(async () => {
     let permissionGranted = await isPermissionGranted();
     if (!permissionGranted) {
@@ -78,20 +79,23 @@ function App() {
       await listen("tauri://file-drop", async (event) => {
         const payload = event.payload as string[];
         console.log(payload)
-        dropzoneRef?.classList.remove('border-blue-500', 'border-2');
+        // dropzoneRef?.classList.remove('border-blue-500', 'border-2');
         setFilePath(payload[0]);
+        setIsNover(false);
       })
     )
     unlistens.push(
       await listen("tauri://file-drop-hover", (event) => {
-        console.log('file-drop-hover')
-        dropzoneRef?.classList.add('border-blue-500', 'border-2');
+        console.log('file-drop-hover', event)
+        // dropzoneRef?.classList.add('border-blue-500', 'border-2');
+        setIsNover(true);
       })
     );
     unlistens.push(
       await listen("tauri://file-drop-cancelled", (event) => {
-        console.log('file-drop-cancelled')
-        dropzoneRef?.classList.remove('border-blue-500', 'border-2');
+        console.log('file-drop-cancelled', event)
+        // dropzoneRef?.classList.remove('border-blue-500', 'border-2');
+        setIsNover(false);
       })
     )
   })
@@ -117,7 +121,12 @@ function App() {
       </div>
 
       <div
-        class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-md"
+        class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 transition duration-300 ease-in-out transform"
+        classList={{
+          "border-blue-500": isHover(),
+          "scale-105": isHover(),
+          "shadow-md": isHover(),
+        }}
         ref={dropzoneRef}
         onClick={handleFileInput}
       >
@@ -129,7 +138,7 @@ function App() {
           <span class="text-gray-500">（或点击此处选择文件）</span>
         </label>
       </div>
-      <p>{numFiles() === undefined || `已拆分 ${numFiles()} 个文件`}</p>
+      {/* <p>{numFiles() === undefined || `已拆分 ${numFiles()} 个文件`}</p> */}
     </div>
   );
 }

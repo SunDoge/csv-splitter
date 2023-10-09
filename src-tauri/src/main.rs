@@ -13,6 +13,10 @@ use error::Result;
 
 #[tauri::command]
 async fn split_csv(path: String, num_lines: usize) -> Result<usize> {
+    if num_lines == 0 {
+        return Err("num lines cannot be 0".into());
+    }
+
     let path = PathBuf::from(path);
 
     let mut lines = BufReader::new(File::open(&path)?).lines();

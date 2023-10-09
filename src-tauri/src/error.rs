@@ -4,6 +4,15 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(transparent)]
     Io(#[from] std::io::Error),
+
+    #[error("app error: {0}")]
+    App(String),
+}
+
+impl From<&str> for Error {
+    fn from(value: &str) -> Self {
+        Error::App(value.to_string())
+    }
 }
 
 // we must manually implement serde::Serialize

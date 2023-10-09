@@ -1,11 +1,11 @@
-import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { JSX, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
 import toast, { Toaster } from "solid-toast"
 
 function App() {
-  const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
+  const [numLines, setNumLines] = createSignal<string>(localStorage.getItem("num-lines") || "10")
   const [filePath, setFilePath] = createSignal<string>("");
   const [isHover, setIsNover] = createSignal(false);
   let dropzoneRef: HTMLDivElement | undefined;
@@ -30,6 +30,16 @@ function App() {
     }
   }
 
+  const handleInputNumLines: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
+    const value = event.currentTarget.value;
+    console.log('input value', value)
+    if (value.match('^[0-9]+$')) {
+      setNumLines(value);
+    } else {
+      event.currentTarget.value = numLines()
+    }
+  }
+
   const handleSplit = async () => {
     if (!filePath().endsWith(".csv")) {
       toast.error(`文件 ${filePath()} 不是csv文件`);
@@ -39,7 +49,7 @@ function App() {
     await toast.promise(
       invoke<number>("split_csv", {
         path: filePath(),
-        numLines: numLines(),
+        numLines: parseInt(numLines()),
       }),
       {
         loading: "正在拆分",
@@ -99,14 +109,15 @@ function App() {
           </label>
           <input
             type="number"
+            min="1"
             class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
             value={numLines()}
-            onChange={(e) => setNumLines(parseInt(e.target.value))}
+            onInput={handleInputNumLines}
           />
         </div>
 
         <div
-          class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 transition duration-300 ease-in-out transform"
+          class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 transition duration-300 ease-in-out transform hover:border-blue-500 hover:scale-105 hover:shadow-sm"
           classList={{
             "border-blue-500": isHover(),
             "scale-105": isHover(),

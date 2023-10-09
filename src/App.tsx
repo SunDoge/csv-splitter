@@ -1,22 +1,13 @@
-import { Show, createEffect, createResource, createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from "@tauri-apps/api/dialog";
-import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/api/notification";
 import { UnlistenFn, listen } from "@tauri-apps/api/event";
+import toast, { Toaster } from "solid-toast"
 
 function App() {
   const [numLines, setNumLines] = createSignal(parseInt(localStorage.getItem("num-lines") || "10"))
-  const [numFiles, setNumFiles] = createSignal<number | undefined>()
   const [filePath, setFilePath] = createSignal<string>("");
   const [isHover, setIsNover] = createSignal(false);
-  const [permissionGranted] = createResource(async () => {
-    let permissionGranted = await isPermissionGranted();
-    if (!permissionGranted) {
-      const permission = await requestPermission();
-      permissionGranted = permission === 'granted';
-    }
-    return permissionGranted;
-  });
   let dropzoneRef: HTMLDivElement | undefined;
 
   const handleFileInput = async () => {
@@ -35,41 +26,36 @@ function App() {
     } else {
       localStorage.setItem("input-file", selected);
       setFilePath(selected);
+      await handleSplit();
     }
   }
 
   const handleSplit = async () => {
-    const numFiles = await invoke<number>("split_csv", {
-      path: filePath(),
-      numLines: numLines(),
-    })
-    setNumFiles(numFiles);
-
-
-    if (permissionGranted()) {
-      sendNotification({
-        title: "csv splitter",
-        body: `已拆分 ${numFiles} 个文件`
-      })
+    if (!filePath().endsWith(".csv")) {
+      toast.error(`文件 ${filePath()} 不是csv文件`);
+      return;
     }
+
+    await toast.promise(
+      invoke<number>("split_csv", {
+        path: filePath(),
+        numLines: numLines(),
+      }),
+      {
+        loading: "正在拆分",
+        success: (numFiles) => (
+          <span>已拆分 {numFiles} 个文件</span>
+        ),
+        error: (
+          <span>拆分失败</span>
+        )
+      }
+    );
   }
 
   createEffect(() => {
     console.log('store num lines', numLines())
     localStorage.setItem("num-lines", numLines().toString());
-  })
-
-  createEffect(() => {
-    if (filePath().length === 0) { return; }
-    if (filePath().endsWith(".csv")) {
-      handleSplit().catch(console.log)
-    } else {
-      console.log('not csv');
-      sendNotification({
-        title: "csv splitter",
-        body: `文件 ${filePath()} 不是csv文件`
-      })
-    }
   })
 
   const unlistens: UnlistenFn[] = [];
@@ -79,22 +65,20 @@ function App() {
       await listen("tauri://file-drop", async (event) => {
         const payload = event.payload as string[];
         console.log(payload)
-        // dropzoneRef?.classList.remove('border-blue-500', 'border-2');
-        setFilePath(payload[0]);
         setIsNover(false);
+        setFilePath(payload[0]);
+        await handleSplit()
       })
     )
     unlistens.push(
       await listen("tauri://file-drop-hover", (event) => {
         console.log('file-drop-hover', event)
-        // dropzoneRef?.classList.add('border-blue-500', 'border-2');
         setIsNover(true);
       })
     );
     unlistens.push(
       await listen("tauri://file-drop-cancelled", (event) => {
         console.log('file-drop-cancelled', event)
-        // dropzoneRef?.classList.remove('border-blue-500', 'border-2');
         setIsNover(false);
       })
     )
@@ -107,39 +91,41 @@ function App() {
   })
 
   return (
-    <div class="flex flex-col w-full p-9 space-y-8">
-      <div class="w-full">
-        <label class="block mb-2 font-medium text-gray-900">
-          每个文件包含记录条数
-        </label>
-        <input
-          type="number"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5"
-          value={numLines()}
-          onChange={(e) => setNumLines(parseInt(e.target.value))}
-        />
-      </div>
+    <>
+      <div class="flex flex-col w-full h-screen p-4 space-y-8 justify-center">
+        <div class="w-full">
+          <label class="block mb-2 font-medium text-gray-900">
+            每个文件包含记录条数：
+          </label>
+          <input
+            type="number"
+            class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+            value={numLines()}
+            onChange={(e) => setNumLines(parseInt(e.target.value))}
+          />
+        </div>
 
-      <div
-        class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 transition duration-300 ease-in-out transform"
-        classList={{
-          "border-blue-500": isHover(),
-          "scale-105": isHover(),
-          "shadow-md": isHover(),
-        }}
-        ref={dropzoneRef}
-        onClick={handleFileInput}
-      >
-        <label class="cursor-pointer flex flex-col items-center space-y-2">
-          <svg class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-          <span class="text-gray-600">拖拽文件到这里</span>
-          <span class="text-gray-500">（或点击此处选择文件）</span>
-        </label>
+        <div
+          class="bg-gray-100 p-8 text-center rounded-lg border-dashed border-2 border-gray-300 transition duration-300 ease-in-out transform"
+          classList={{
+            "border-blue-500": isHover(),
+            "scale-105": isHover(),
+            "shadow-md": isHover(),
+          }}
+          ref={dropzoneRef}
+          onClick={handleFileInput}
+        >
+          <label class="cursor-pointer flex flex-col items-center space-y-2">
+            <svg class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <span class="text-gray-600">拖拽文件到这里</span>
+            <span class="text-gray-500">（或点击此处选择文件）</span>
+          </label>
+        </div>
       </div>
-      {/* <p>{numFiles() === undefined || `已拆分 ${numFiles()} 个文件`}</p> */}
-    </div>
+      <Toaster position="top-center" />
+    </>
   );
 }
 

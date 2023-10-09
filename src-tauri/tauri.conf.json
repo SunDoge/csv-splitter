@@ -19,9 +19,6 @@
       },
       "dialog": {
         "all": true
-      },
-      "notification": {
-        "all": true
       }
     },
     "bundle": {
@@ -42,10 +39,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": true,
+        "resizable": false,
         "title": "csv-splitter",
-        "width": 800,
-        "height": 600
+        "width": 400,
+        "height": 500
       }
     ]
   }

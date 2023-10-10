@@ -12,7 +12,7 @@ use std::{
 use error::Result;
 
 #[tauri::command]
-async fn split_csv(path: String, num_lines: usize) -> Result<usize> {
+async fn split_csv(path: String, num_lines: usize, with_header: bool) -> Result<usize> {
     if num_lines == 0 {
         return Err("num lines cannot be 0".into());
     }
@@ -21,14 +21,20 @@ async fn split_csv(path: String, num_lines: usize) -> Result<usize> {
 
     let mut lines = BufReader::new(File::open(&path)?).lines();
 
-    let header = lines.next().unwrap()?;
+    let header = if with_header {
+        Some(lines.next().unwrap()?)
+    } else {
+        None
+    };
 
     let mut file_index = 1;
     let out_path = generate_output_file_path(&path, file_index);
     let mut writer = BufWriter::new(File::create(&out_path)?);
 
     'main: loop {
-        writeln!(writer, "{}", &header)?;
+        if let Some(header) = &header {
+            writeln!(writer, "{}", header)?;
+        }
         for _ in 0..num_lines {
             match lines.next() {
                 Some(line) => {

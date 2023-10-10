@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": false,
-        "title": "csv-splitter",
+        "title": "CSV拆分工具",
         "width": 400,
         "height": 500
       }

@@ -35,15 +35,10 @@ export const AboutModal: Component<{
             <div class="my-5">
               <p>Version: {appVersion()}</p>
               <p>Author: <a class="text-blue-600" href="https://github.com/SunDoge" target="__blank">@SunDoge</a></p>
-              <p>Source Code: <a class="text-blue-600" href="https://github.com/SunDoge/csv-splitter" target="__blank">SunDoge/csv-splitter</a></p>
+              <p>Source Code:
+                <a class="text-blue-600" href="https://github.com/SunDoge/csv-splitter" target="__blank">SunDoge/csv-splitter</a>
+              </p>
             </div>
-            {/* <!--Footer--> */}
-            {/* <div class="flex justify-end pt-2">
-            <button
-              class="focus:outline-none modal-close px-4 bg-gray-400 p-3 rounded-lg text-black hover:bg-gray-300">Cancel</button>
-            <button
-              class="focus:outline-none px-4 bg-teal-500 p-3 ml-3 rounded-lg text-white hover:bg-teal-400">Confirm</button>
-          </div> */}
           </div>
         </div>
       </div>

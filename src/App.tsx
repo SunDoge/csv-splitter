@@ -7,6 +7,7 @@ import { Dropzone } from "./components/Dropzone";
 
 function App() {
   const [numLines, setNumLines] = createSignal<string>(localStorage.getItem("num-lines") || "10")
+  const [withHeader, setWithHeader] = createSignal<boolean>(localStorage.getItem("with-header") === 'true')
   const [filePath, setFilePath] = createSignal<string>("", { equals: false });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
@@ -33,6 +34,7 @@ function App() {
       invoke<number>("split_csv", {
         path: filePath(),
         numLines: parseInt(numLines()),
+        withHeader: withHeader(),
       }),
       {
         loading: "正在拆分",
@@ -47,15 +49,13 @@ function App() {
   }
 
   createEffect(() => {
-    handleSplit().catch((e) => {
-      console.log(e);
-    })
+    localStorage.setItem("num-lines", numLines().toString());
   })
 
   createEffect(() => {
-    console.log('store num lines', numLines())
-    localStorage.setItem("num-lines", numLines().toString());
+    localStorage.setItem("with-header", withHeader() ? "true" : "false");
   })
+
 
   return (
     <>
@@ -64,9 +64,9 @@ function App() {
       >
         <HiOutlineQuestionMarkCircle />
       </button>
-      <div class="flex flex-col w-full h-screen p-4 space-y-8 justify-center">
-        <div class="w-full">
-          <label class="block mb-2 font-medium text-gray-900">
+      <div class="flex flex-col w-full h-screen p-4 space-y-4 justify-center">
+        <div>
+          <label class="block mb-2 font-semibold">
             每个文件包含记录条数：
           </label>
           <input
@@ -77,8 +77,19 @@ function App() {
             onInput={handleInputNumLines}
           />
         </div>
+
+        <div class="inline-flex items-center mt-2">
+          <input type="checkbox" class="h-5 w-5" checked={withHeader()} onChange={(e) => {
+            setWithHeader(e.currentTarget.checked)
+          }} />
+          <span class="ml-2 font-semibold">带有列名（第一行为列名）</span>
+        </div>
+
         <Dropzone onDrop={(path) => {
           setFilePath(path);
+          handleSplit().catch((e) => {
+            console.log(e);
+          })
         }} />
       </div>
       <Toaster position="top-center" />

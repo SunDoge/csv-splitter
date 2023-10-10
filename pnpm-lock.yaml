@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@lutaok/solid-modal':
+    specifier: ^0.1.1
+    version: 0.1.1(solid-js@1.7.12)
   '@tauri-apps/api':
     specifier: ^1.5.0
     version: 1.5.0
@@ -600,6 +603,14 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
+
+  /@lutaok/solid-modal@0.1.1(solid-js@1.7.12):
+    resolution: {integrity: sha512-2fw3JgReT7xxDDnXxQoWV7N3ldHkFMj2eyNXQa3zvUmZeZ1/KZMRiMy7qZVXYedqxQW+mRSkY80V15P6s/wJlw==}
+    peerDependencies:
+      solid-js: ^1.4.0
+    dependencies:
+      solid-js: 1.7.12
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}

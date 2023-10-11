@@ -36,6 +36,7 @@ function App() {
     }
     if (parsedNumLines < 10) {
       const yes = await ask("每个文件小于10条记录会创建大量文件，确定继续吗？", {
+        title: "是否继续拆分？",
         type: "warning"
       });
       if (!yes) {

@@ -1,6 +1,6 @@
 # CSV拆分工具
 
 <p align="center">
-  <img src="https://github.com/SunDoge/csv-splitter/assets/16167062/1daa6c7e-877a-48e6-92d1-25c2c2201557" />
+  <img src="https://github.com/SunDoge/csv-splitter/assets/16167062/eed3a825-c0ac-4cc8-8a8f-6659c48cdba6" />
 </p>
 

@@ -4,26 +4,43 @@ import toast, { Toaster } from "solid-toast"
 import { HiOutlineQuestionMarkCircle } from "./components/QuestionMark";
 import { AboutModal } from "./components/AboutModal";
 import { Dropzone } from "./components/Dropzone";
+import createMaskedInput from "./components/IMask";
+import { ask } from "@tauri-apps/api/dialog";
+
+const NumberInput = createMaskedInput({
+  mask: Number,
+  min: 1,
+  thousandsSeparator: ","
+})
 
 function App() {
-  const [numLines, setNumLines] = createSignal<string>(localStorage.getItem("num-lines") || "10")
-  const [withHeader, setWithHeader] = createSignal<boolean>(localStorage.getItem("with-header") === 'true')
+  const [numLines, setNumLines] = createSignal<string>(
+    localStorage.getItem("num-lines") || "10"
+  )
+  // 默认为true
+  const [withHeader, setWithHeader] = createSignal<boolean>(
+    localStorage.getItem('with-header') !== 'false'
+  )
   const [filePath, setFilePath] = createSignal<string>("", { equals: false });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
-  const handleInputNumLines: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
-    const value = event.currentTarget.value;
-    console.log('input value', value)
-    if (value.match('^[0-9]+$')) {
-      setNumLines(value);
-    } else {
-      event.currentTarget.value = numLines()
-    }
-  }
-
   const handleSplit = async () => {
     if (filePath().length === 0) {
+      toast.error("请选择合法文件");
       return;
+    }
+    const parsedNumLines = parseInt(numLines());
+    if (Number.isNaN(parsedNumLines)) {
+      toast.error("请输入合法的记录条数");
+      return;
+    }
+    if (parsedNumLines < 10) {
+      const yes = await ask("每个文件小于10条记录会创建大量文件，确定继续吗？", {
+        type: "warning"
+      });
+      if (!yes) {
+        return;
+      }
     }
     if (!filePath().endsWith(".csv")) {
       toast.error(`文件 ${filePath()} 不是csv文件`);
@@ -33,7 +50,7 @@ function App() {
     await toast.promise(
       invoke<number>("split_csv", {
         path: filePath(),
-        numLines: parseInt(numLines()),
+        numLines: parsedNumLines,
         withHeader: withHeader(),
       }),
       {
@@ -53,9 +70,8 @@ function App() {
   })
 
   createEffect(() => {
-    localStorage.setItem("with-header", withHeader() ? "true" : "false");
+    localStorage.setItem("with-header", withHeader().toString());
   })
-
 
   return (
     <>
@@ -69,12 +85,12 @@ function App() {
           <label class="block mb-2 font-semibold">
             每个文件包含记录条数：
           </label>
-          <input
-            type="number"
-            min="1"
+          <NumberInput
             class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+            onAccept={({ unmaskedValue }, _maskRef, _e) => {
+              setNumLines(unmaskedValue);
+            }}
             value={numLines()}
-            onInput={handleInputNumLines}
           />
         </div>
 

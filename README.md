@@ -1,7 +1,6 @@
-# Tauri + Solid + Typescript
+# CSV拆分工具
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+<p align="center">
+  <img src="https://github.com/SunDoge/csv-splitter/assets/16167062/1daa6c7e-877a-48e6-92d1-25c2c2201557" />
+</p>
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)

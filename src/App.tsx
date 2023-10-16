@@ -15,7 +15,7 @@ const NumberInput = createMaskedInput({
 
 function App() {
   const [numLines, setNumLines] = createSignal<string>(
-    localStorage.getItem("num-lines") || "10"
+    localStorage.getItem("num-lines") || "1000000"
   )
   // 默认为true
   const [withHeader, setWithHeader] = createSignal<boolean>(
@@ -34,8 +34,8 @@ function App() {
       toast.error("请输入合法的记录条数");
       return;
     }
-    if (parsedNumLines < 10) {
-      const yes = await ask("每个文件小于10条记录会创建大量文件，确定继续吗？", {
+    if (parsedNumLines < 100) {
+      const yes = await ask("每个文件小于100条记录会创建大量文件，确定继续吗？", {
         title: "是否继续拆分？",
         type: "warning"
       });

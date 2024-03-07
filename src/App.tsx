@@ -1,4 +1,4 @@
-import { createEffect, createSignal, JSX } from "solid-js";
+import { createEffect, createSignal, JSX, Show, Switch } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import toast, { Toaster } from "solid-toast"
 import { HiOutlineQuestionMarkCircle } from "./components/QuestionMark";
@@ -20,6 +20,9 @@ function App() {
   // 默认为true
   const [withHeader, setWithHeader] = createSignal<boolean>(
     localStorage.getItem('with-header') !== 'false'
+  )
+  const [numHeaderLines, setNumHeaderLines] = createSignal<string>(
+    localStorage.getItem("num-header-lines") || "1"
   )
   const [filePath, setFilePath] = createSignal<string>("", { equals: false });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
@@ -43,6 +46,13 @@ function App() {
         return;
       }
     }
+
+    const paredNumHeaderLines = parseInt(numHeaderLines());
+    if (Number.isNaN(paredNumHeaderLines)) {
+      toast.error("请输入合法的表头行数");
+      return;
+    }
+
     if (!filePath().endsWith(".csv")) {
       toast.error(`文件 ${filePath()} 不是csv文件`);
       return;
@@ -52,7 +62,7 @@ function App() {
       invoke<number>("split_csv", {
         path: filePath(),
         numLines: parsedNumLines,
-        withHeader: withHeader(),
+        numHeaderLines: withHeader() ? parsedNumLines : 0,
       }),
       {
         loading: "正在拆分",
@@ -99,7 +109,22 @@ function App() {
           <input type="checkbox" class="h-5 w-5" checked={withHeader()} onChange={(e) => {
             setWithHeader(e.currentTarget.checked)
           }} />
-          <span class="ml-2 font-semibold">带有列名（第一行为列名）</span>
+          <span class="ml-2 font-semibold">跳过表头</span>
+        </div>
+
+        <div>
+          <Show when={withHeader()} >
+            <label class="block mb-2 font-semibold">
+              表头行数：
+            </label>
+            <NumberInput
+              class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+              onAccept={({ unmaskedValue }, _maskRef, _e) => {
+                setNumHeaderLines(unmaskedValue);
+              }}
+              value={numHeaderLines()}
+            />
+          </Show>
         </div>
 
         <Dropzone onDrop={(path) => {

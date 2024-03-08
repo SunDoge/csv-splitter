@@ -2,6 +2,9 @@ import { Component, Show, createResource } from "solid-js";
 
 import { getName, getVersion } from "@tauri-apps/api/app";
 
+
+const EMAIL = "triplez0@outlook.com";
+
 export const AboutModal: Component<{
   isOpen: boolean,
   onClose: () => void
@@ -33,11 +36,12 @@ export const AboutModal: Component<{
             </div>
             {/* <!--Body--> */}
             <div class="my-5">
-              <p>Version: {appVersion()}</p>
-              <p>Author: <a class="text-blue-600" href="https://github.com/SunDoge" target="__blank">@SunDoge</a></p>
-              <p>Source Code:
+              <p>版本: v{appVersion()}</p>
+              <p>作者: <a class="text-blue-600" href="https://github.com/SunDoge" target="__blank">@SunDoge</a></p>
+              <p>源码:
                 <a class="text-blue-600" href="https://github.com/SunDoge/csv-splitter" target="__blank">SunDoge/csv-splitter</a>
               </p>
+              <p>问题反馈: <a class="text-blue-600" href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
             </div>
           </div>
         </div>

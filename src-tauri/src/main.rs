@@ -10,11 +10,19 @@ use std::{
 };
 
 use error::Result;
+use serde::Deserialize;
 use tauri_plugin_aptabase::EventTracker;
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SplitOptions {
+    lines_per_file: usize,
+    header_lines: usize,
+}
+
 #[tauri::command]
-async fn split_csv(path: String, num_lines: usize, num_header_lines: usize) -> Result<usize> {
-    if num_lines == 0 {
+async fn split_csv(path: String, options: SplitOptions) -> Result<usize> {
+    if options.lines_per_file == 0 {
         return Err("num lines cannot be 0".into());
     }
 
@@ -23,7 +31,7 @@ async fn split_csv(path: String, num_lines: usize, num_header_lines: usize) -> R
     let mut lines = BufReader::new(File::open(&path)?).lines();
 
     let header: Vec<String> = (&mut lines)
-        .take(num_header_lines)
+        .take(options.header_lines)
         .collect::<std::io::Result<Vec<_>>>()?;
 
     let mut file_index = 1;
@@ -35,7 +43,7 @@ async fn split_csv(path: String, num_lines: usize, num_header_lines: usize) -> R
             writeln!(writer, "{}", line)?;
         }
 
-        for _ in 0..num_lines {
+        for _ in 0..options.lines_per_file {
             match lines.next() {
                 Some(line) => {
                     let line = line?;

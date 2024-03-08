@@ -1,4 +1,4 @@
-import { createEffect, createSignal, JSX, Show, Switch } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import toast, { Toaster } from "solid-toast"
 import { HiOutlineQuestionMarkCircle } from "./components/QuestionMark";
@@ -6,6 +6,12 @@ import { AboutModal } from "./components/AboutModal";
 import { Dropzone } from "./components/Dropzone";
 import createMaskedInput from "./components/IMask";
 import { ask } from "@tauri-apps/api/dialog";
+import { trackEvent } from "@aptabase/tauri"
+
+
+const KEY_WITH_HEADER = 'with-header';
+const KEY_LINES_PER_FILE = 'lines-per-file';
+const KEY_HEADER_LINES = 'header-lines'
 
 const NumberInput = createMaskedInput({
   mask: Number,
@@ -14,15 +20,15 @@ const NumberInput = createMaskedInput({
 })
 
 function App() {
-  const [numLines, setNumLines] = createSignal<string>(
-    localStorage.getItem("num-lines") || "1000000"
+  const [linesPerFile, setLinesPerFile] = createSignal<string>(
+    localStorage.getItem(KEY_LINES_PER_FILE) || "1000000"
   )
   // 默认为true
   const [withHeader, setWithHeader] = createSignal<boolean>(
-    localStorage.getItem('with-header') !== 'false'
+    localStorage.getItem(KEY_WITH_HEADER) !== 'false'
   )
-  const [numHeaderLines, setNumHeaderLines] = createSignal<string>(
-    localStorage.getItem("num-header-lines") || "1"
+  const [headerLines, setHeaderLines] = createSignal<string>(
+    localStorage.getItem(KEY_HEADER_LINES) || "1"
   )
   const [filePath, setFilePath] = createSignal<string>("", { equals: false });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
@@ -32,12 +38,12 @@ function App() {
       toast.error("请选择合法文件");
       return;
     }
-    const parsedNumLines = parseInt(numLines());
-    if (Number.isNaN(parsedNumLines)) {
+    const parsedLinesPerFile = parseInt(linesPerFile());
+    if (Number.isNaN(parsedLinesPerFile)) {
       toast.error("请输入合法的记录条数");
       return;
     }
-    if (parsedNumLines < 100) {
+    if (parsedLinesPerFile < 100) {
       const yes = await ask("每个文件小于100条记录会创建大量文件，确定继续吗？", {
         title: "是否继续拆分？",
         type: "warning"
@@ -47,8 +53,8 @@ function App() {
       }
     }
 
-    const paredNumHeaderLines = parseInt(numHeaderLines());
-    if (Number.isNaN(paredNumHeaderLines)) {
+    const parsedHeaderLines = parseInt(headerLines());
+    if (Number.isNaN(parsedHeaderLines)) {
       toast.error("请输入合法的表头行数");
       return;
     }
@@ -57,31 +63,42 @@ function App() {
       toast.error(`文件 ${filePath()} 不是csv文件`);
       return;
     }
-
+    console.log(parsedHeaderLines, parsedLinesPerFile)
     await toast.promise(
       invoke<number>("split_csv", {
         path: filePath(),
-        numLines: parsedNumLines,
-        numHeaderLines: withHeader() ? parsedNumLines : 0,
+
+        options: {
+          linesPerFile: parsedLinesPerFile,
+          headerLines: withHeader() ? parsedHeaderLines : 0,
+        }
+
       }),
       {
         loading: "正在拆分",
         success: (numFiles) => (
           <span>已拆分 {numFiles} 个文件</span>
         ),
-        error: (
-          <span>拆分失败</span>
-        )
+        error: () => {
+          trackEvent("fail-to-split", {
+            parsedLinesPerFile,
+            parsedHeaderLines,
+          });
+          console.log(parsedHeaderLines, parsedLinesPerFile)
+          return <span>拆分失败</span>
+        }
       }
     );
   }
 
   createEffect(() => {
-    localStorage.setItem("num-lines", numLines().toString());
+    localStorage.setItem(KEY_LINES_PER_FILE, linesPerFile());
   })
-
   createEffect(() => {
-    localStorage.setItem("with-header", withHeader().toString());
+    localStorage.setItem(KEY_WITH_HEADER, withHeader().toString());
+  })
+  createEffect(() => {
+    localStorage.setItem(KEY_HEADER_LINES, headerLines());
   })
 
   return (
@@ -99,9 +116,9 @@ function App() {
           <NumberInput
             class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
             onAccept={({ unmaskedValue }, _maskRef, _e) => {
-              setNumLines(unmaskedValue);
+              setLinesPerFile(unmaskedValue);
             }}
-            value={numLines()}
+            value={linesPerFile()}
           />
         </div>
 
@@ -120,15 +137,16 @@ function App() {
             <NumberInput
               class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
               onAccept={({ unmaskedValue }, _maskRef, _e) => {
-                setNumHeaderLines(unmaskedValue);
+                setHeaderLines(unmaskedValue);
               }}
-              value={numHeaderLines()}
+              value={headerLines()}
             />
           </Show>
         </div>
 
         <Dropzone onDrop={(path) => {
           setFilePath(path);
+          console.log(path);
           handleSplit().catch((e) => {
             console.log(e);
           })

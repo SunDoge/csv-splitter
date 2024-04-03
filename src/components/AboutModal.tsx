@@ -36,12 +36,13 @@ export const AboutModal: Component<{
             </div>
             {/* <!--Body--> */}
             <div class="my-5">
-              <p>版本: v{appVersion()}</p>
-              <p>作者: <a class="text-blue-600" href="https://github.com/SunDoge" target="__blank">@SunDoge</a></p>
-              <p>源码:
+              <p>版本:&nbsp;v{appVersion()}</p>
+              <p>作者:&nbsp;<a class="text-blue-600" href="https://github.com/SunDoge" target="__blank">@SunDoge</a></p>
+              <p>源码:&nbsp;
                 <a class="text-blue-600" href="https://github.com/SunDoge/csv-splitter" target="__blank">SunDoge/csv-splitter</a>
               </p>
-              <p>问题反馈: <a class="text-blue-600" href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+              <p>问题反馈:&nbsp;<a class="text-blue-600" href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+              <p>如有更多需求，欢迎和我讨论。</p>
             </div>
           </div>
         </div>

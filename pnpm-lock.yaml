@@ -8,6 +8,9 @@ dependencies:
   '@aptabase/tauri':
     specifier: ^0.4.1
     version: 0.4.1
+  '@solid-primitives/storage':
+    specifier: ^3.1.0
+    version: 3.1.0(solid-js@1.8.15)
   '@tauri-apps/api':
     specifier: ^1.5.0
     version: 1.5.3
@@ -647,6 +650,23 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@solid-primitives/storage@3.1.0(solid-js@1.8.15):
+    resolution: {integrity: sha512-mJYXyZGPVkmNX9vve3U6oY5Qa0klaPZWyBs2+pxUEhi7XzKGIIMWSB2CQ+5mZ0EmkfykQiPwQJs6o6OxTKPVIQ==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/utils': 6.2.3(solid-js@1.8.15)
+      solid-js: 1.8.15
+    dev: false
+
+  /@solid-primitives/utils@6.2.3(solid-js@1.8.15):
+    resolution: {integrity: sha512-CqAwKb2T5Vi72+rhebSsqNZ9o67buYRdEJrIFzRXz3U59QqezuuxPsyzTSVCacwS5Pf109VRsgCJQoxKRoECZQ==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      solid-js: 1.8.15
+    dev: false
 
   /@tauri-apps/api@1.5.3:
     resolution: {integrity: sha512-zxnDjHHKjOsrIzZm6nO5Xapb/BxqUq1tc7cGkFXsFkGTsSWgCPH1D8mm0XS9weJY2OaR73I3k3S+b7eSzJDfqA==}

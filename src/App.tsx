@@ -1,4 +1,4 @@
-import { createEffect, createSignal, Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import toast, { Toaster } from "solid-toast"
 import { HiOutlineQuestionMarkCircle } from "./components/QuestionMark";
@@ -7,11 +7,8 @@ import { Dropzone } from "./components/Dropzone";
 import createMaskedInput from "./components/IMask";
 import { ask } from "@tauri-apps/api/dialog";
 import { trackEvent } from "@aptabase/tauri"
+import { makePersisted } from "@solid-primitives/storage"
 
-
-const KEY_WITH_HEADER = 'with-header';
-const KEY_LINES_PER_FILE = 'lines-per-file';
-const KEY_HEADER_LINES = 'header-lines'
 
 const NumberInput = createMaskedInput({
   mask: Number,
@@ -20,16 +17,9 @@ const NumberInput = createMaskedInput({
 })
 
 function App() {
-  const [linesPerFile, setLinesPerFile] = createSignal<string>(
-    localStorage.getItem(KEY_LINES_PER_FILE) || "1000000"
-  )
-  // 默认为true
-  const [withHeader, setWithHeader] = createSignal<boolean>(
-    localStorage.getItem(KEY_WITH_HEADER) !== 'false'
-  )
-  const [headerLines, setHeaderLines] = createSignal<string>(
-    localStorage.getItem(KEY_HEADER_LINES) || "1"
-  )
+  const [linesPerFile, setLinesPerFile] = makePersisted(createSignal<string>("1000000"));
+  const [withHeader, setWithHeader] = makePersisted(createSignal<boolean>(true));
+  const [headerLines, setHeaderLines] = makePersisted(createSignal<string>("1"));
   const [filePath, setFilePath] = createSignal<string>("", { equals: false });
   const [isModalOpen, setIsModalOpen] = createSignal(false);
 
@@ -67,12 +57,10 @@ function App() {
     await toast.promise(
       invoke<number>("split_csv", {
         path: filePath(),
-
         options: {
           linesPerFile: parsedLinesPerFile,
           headerLines: withHeader() ? parsedHeaderLines : 0,
         }
-
       }),
       {
         loading: "正在拆分",
@@ -81,25 +69,15 @@ function App() {
         ),
         error: () => {
           trackEvent("fail-to-split", {
-            parsedLinesPerFile,
-            parsedHeaderLines,
+            parsedLinesPerFile: parsedLinesPerFile,
+            parsedHeaderLines: parsedHeaderLines,
           });
           console.log(parsedHeaderLines, parsedLinesPerFile)
-          return <span>拆分失败</span>
+          return <span>拆分失败，请点击右上角向作者反馈</span>
         }
       }
     );
   }
-
-  createEffect(() => {
-    localStorage.setItem(KEY_LINES_PER_FILE, linesPerFile());
-  })
-  createEffect(() => {
-    localStorage.setItem(KEY_WITH_HEADER, withHeader().toString());
-  })
-  createEffect(() => {
-    localStorage.setItem(KEY_HEADER_LINES, headerLines());
-  })
 
   return (
     <>

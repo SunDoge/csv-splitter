@@ -10,7 +10,7 @@ dependencies:
     version: 0.4.1
   '@solid-primitives/storage':
     specifier: ^3.1.0
-    version: 3.1.0(solid-js@1.8.15)
+    version: 3.2.0(solid-js@1.8.15)
   '@tauri-apps/api':
     specifier: ^1.5.0
     version: 1.5.3
@@ -651,8 +651,8 @@ packages:
     dev: true
     optional: true
 
-  /@solid-primitives/storage@3.1.0(solid-js@1.8.15):
-    resolution: {integrity: sha512-mJYXyZGPVkmNX9vve3U6oY5Qa0klaPZWyBs2+pxUEhi7XzKGIIMWSB2CQ+5mZ0EmkfykQiPwQJs6o6OxTKPVIQ==}
+  /@solid-primitives/storage@3.2.0(solid-js@1.8.15):
+    resolution: {integrity: sha512-DitE1NpiN6sCoveLNiUS2pAQqS83ebRnBq9/hRamQcJY+RIvGGfaqY9UcWaAAnnyDX3jNGAhV+Sq7C168fGJ9A==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
@@ -1540,11 +1540,6 @@ packages:
 
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
-    engines: {node: '>=0.10.0'}
-    dev: true
-
-  /source-map-js@1.2.0:
-    resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
     dev: true
 

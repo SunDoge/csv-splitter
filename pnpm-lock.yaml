@@ -44,10 +44,10 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^5.1.5
-        version: 5.3.1
+        version: 5.4.0
       vite-plugin-solid:
         specifier: ^2.7.0
-        version: 2.10.1(solid-js@1.8.15)(vite@5.3.1)
+        version: 2.10.1(solid-js@1.8.15)(vite@5.4.0)
 
 packages:
 
@@ -825,6 +825,9 @@ packages:
   picocolors@1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
 
+  picocolors@1.0.1:
+    resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
+
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -878,8 +881,8 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.4.38:
-    resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
+  postcss@8.4.41:
+    resolution: {integrity: sha512-TesUflQ0WKZqAvg52PWL6kHgLKP6xB6heTOdoYM0Wt2UHyxNa4K25EZZMgKns3BH1RLVbZCREPpLY0rhnNoHVQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   queue-microtask@1.2.3:
@@ -1009,8 +1012,8 @@ packages:
       '@testing-library/jest-dom':
         optional: true
 
-  vite@5.3.1:
-    resolution: {integrity: sha512-XBmSKRLXLxiaPYamLv3/hnP/KXDai1NDexN0FpkTaZXTfycHvkRHoenpgl/fvuK/kPbB6xAgoyiryAhQNxYmAQ==}
+  vite@5.4.0:
+    resolution: {integrity: sha512-5xokfMX0PIiwCMCMb9ZJcMyh5wbBun0zUzKib+L65vAZ8GY9ePZMXxFrHbr/Kyll2+LSCY7xtERPpxkBDKngwg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -1018,6 +1021,7 @@ packages:
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
+      sass-embedded: '*'
       stylus: '*'
       sugarss: '*'
       terser: ^5.4.0
@@ -1029,6 +1033,8 @@ packages:
       lightningcss:
         optional: true
       sass:
+        optional: true
+      sass-embedded:
         optional: true
       stylus:
         optional: true
@@ -1721,6 +1727,8 @@ snapshots:
 
   picocolors@1.0.0: {}
 
+  picocolors@1.0.1: {}
+
   picomatch@2.3.1: {}
 
   pify@2.3.0: {}
@@ -1764,10 +1772,10 @@ snapshots:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  postcss@8.4.38:
+  postcss@8.4.41:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       source-map-js: 1.2.0
 
   queue-microtask@1.2.3: {}
@@ -1921,7 +1929,7 @@ snapshots:
 
   validate-html-nesting@1.2.2: {}
 
-  vite-plugin-solid@2.10.1(solid-js@1.8.15)(vite@5.3.1):
+  vite-plugin-solid@2.10.1(solid-js@1.8.15)(vite@5.4.0):
     dependencies:
       '@babel/core': 7.24.0
       '@types/babel__core': 7.20.5
@@ -1929,22 +1937,22 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.8.15
       solid-refresh: 0.6.3(solid-js@1.8.15)
-      vite: 5.3.1
-      vitefu: 0.2.5(vite@5.3.1)
+      vite: 5.4.0
+      vitefu: 0.2.5(vite@5.4.0)
     transitivePeerDependencies:
       - supports-color
 
-  vite@5.3.1:
+  vite@5.4.0:
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.38
+      postcss: 8.4.41
       rollup: 4.14.1
     optionalDependencies:
       fsevents: 2.3.3
 
-  vitefu@0.2.5(vite@5.3.1):
+  vitefu@0.2.5(vite@5.4.0):
     optionalDependencies:
-      vite: 5.3.1
+      vite: 5.4.0
 
   wrappy@1.0.2: {}
 

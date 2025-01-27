@@ -13,7 +13,7 @@ importers:
         version: 0.4.1
       '@solid-primitives/storage':
         specifier: ^4.0.0
-        version: 4.0.0(solid-js@1.9.3)
+        version: 4.3.1(solid-js@1.9.3)
       '@tauri-apps/api':
         specifier: ^2.1.1
         version: 2.1.1
@@ -410,8 +410,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@solid-primitives/storage@4.0.0':
-    resolution: {integrity: sha512-Lq5otUGZw4tfv8OcBxU1r/ZkO38ibH5IqVLhF8sk7tObI8Hs5dRLxwKDIuk9hG03qeOZzH72Fc1NQij+UAQWaw==}
+  '@solid-primitives/storage@4.3.1':
+    resolution: {integrity: sha512-xAJsY2pvXrAaCai4N2grmWY3xh5om9suTDVzGkRF5JBpDzs3Apk+xIovdTErbW0iCzXIEefENXb9xmSzdjuLYA==}
     peerDependencies:
       '@tauri-apps/plugin-store': '*'
       solid-js: ^1.6.12
@@ -422,8 +422,8 @@ packages:
       solid-start:
         optional: true
 
-  '@solid-primitives/utils@6.2.3':
-    resolution: {integrity: sha512-CqAwKb2T5Vi72+rhebSsqNZ9o67buYRdEJrIFzRXz3U59QqezuuxPsyzTSVCacwS5Pf109VRsgCJQoxKRoECZQ==}
+  '@solid-primitives/utils@6.3.0':
+    resolution: {integrity: sha512-e7hTlJ1Ywh2+g/Qug+n4L1mpfxsikoIS4/sHE2EK9WatQt8UJqop/vE6bsLnXlU1xuhb/jo94Ah5Y27rd4wP7A==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -1361,12 +1361,12 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.14.1':
     optional: true
 
-  '@solid-primitives/storage@4.0.0(solid-js@1.9.3)':
+  '@solid-primitives/storage@4.3.1(solid-js@1.9.3)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.9.3)
+      '@solid-primitives/utils': 6.3.0(solid-js@1.9.3)
       solid-js: 1.9.3
 
-  '@solid-primitives/utils@6.2.3(solid-js@1.9.3)':
+  '@solid-primitives/utils@6.3.0(solid-js@1.9.3)':
     dependencies:
       solid-js: 1.9.3
 
